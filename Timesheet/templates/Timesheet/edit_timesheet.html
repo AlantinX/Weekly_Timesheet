@@ -1,0 +1,69 @@
+{% extends 'Timesheet/base.html' %}
+{% block title %}Edit Timesheet{% endblock %}
+{% block content %}
+  <h4>Edit Timesheet for week of {{ timesheet.week_start }}</h4>
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" id="rows_count" name="rows_count" value="{{ rows_range|length }}" />
+  <table class="table table-bordered table-sm timesheet-table">
+      <thead class="table-light">
+        <tr>
+          <th style="width:210px">Employee Name</th>
+          <th>Mon</th>
+          <th>Tues</th>
+          <th>Wed</th>
+          <th>Thur</th>
+          <th>Fri</th>
+          <th>Sat</th>
+          <th>Sun</th>
+          <th>Job Site Names</th>
+          <th>Job Site Numbers</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows_by_index %}
+          {% with i=forloop.counter0 %}
+          <tr>
+            <td style="width:210px">
+              <select name="employee_{{ i }}" class="form-select">
+                <option value=""></option>
+                <option value="self" {% if row and not row.employee and row.employee_name == user_display %}selected{% endif %}>{{ user_display }}</option>
+                
+                {% if user_group_members %}
+                <optgroup label="Managers">
+                  {% for u in user_group_members %}
+                    <option value="{{ u.username }}" {% if row and not row.employee and row.employee_name == u.get_full_name|default:u.username %}selected{% endif %}>{{ u.get_full_name|default:u.username }}</option>
+                  {% endfor %}
+                </optgroup>
+                {% endif %}
+                
+                {% if employees %}
+                <optgroup label="Crew Members">
+                  {% for e in employees %}
+                    <option value="{{ e.id }}" {% if row and row.employee and row.employee.id == e.id %}selected{% endif %}>{{ e.name }}{% if is_admin_or_accounting and e.owner != user %}{% endif %}</option>
+                  {% endfor %}
+                </optgroup>
+                {% endif %}
+              </select>
+            </td>
+            {% for d in day_range %}
+              <td>
+                <input name="hours_{{ i }}_{{ d }}" class="form-control form-control-sm" value="{% if row %}{% if d == 0 %}{{ row.mon }}{% elif d == 1 %}{{ row.tues }}{% elif d == 2 %}{{ row.wed }}{% elif d == 3 %}{{ row.thur }}{% elif d == 4 %}{{ row.fri }}{% elif d == 5 %}{{ row.sat }}{% elif d == 6 %}{{ row.sun }}{% endif %}{% endif %}" />
+              </td>
+            {% endfor %}
+            <td><input name="jobsite_name_{{ i }}" class="form-control form-control-sm" value="{% if row %}{{ row.jobsite_name }}{% endif %}" /></td>
+            <td><input name="jobsite_num_{{ i }}" class="form-control form-control-sm" value="{% if row %}{{ row.jobsite_num }}{% endif %}" /></td>
+          </tr>
+          {% endwith %}
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="mb-3">
+      <label class="form-label">Additional Notes</label>
+      <textarea name="additional_notes" class="form-control" rows="4">{{ additional_notes|default:'' }}</textarea>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-primary">Save Changes</button>
+    </div>
+  </form>
+{% endblock %}

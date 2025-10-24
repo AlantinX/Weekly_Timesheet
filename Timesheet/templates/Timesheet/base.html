@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Timesheet{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  {% load static %}
+  <link href="{% static 'Timesheet/styles.css' %}" rel="stylesheet" />
+  </head>
+  <body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+      <div class="container-fluid">
+        {% load static %}
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'Timesheet:dashboard' %}">
+          <img src="{% static 'Timesheet/Alliance-logo.png' %}" alt="Logo" style="height:36px; margin-right:8px;" />
+          <span>Alliance Timesheets</span>
+        </a>
+        <div class="d-flex flex-grow-1">
+          <a class="btn btn-outline-light btn-sm" href="{% url 'Timesheet:dashboard' %}">Dashboard</a>
+          <div class="d-flex ms-auto">
+            {% if user.is_authenticated %}
+      {% if is_admin_or_accounting %}
+        <a class="btn btn-outline-light btn-sm me-2" href="{% url 'Timesheet:user_management' %}">User Management</a>
+      {% endif %}
+      {% if is_user_group %}
+        <a class="btn btn-warning btn-sm me-2" href="{% url 'Timesheet:crew_list' %}">Crew</a>
+      {% endif %}
+            <span class="navbar-text text-white me-3">{{ user.username }}</span>
+            <a class="btn btn-secondary btn-sm" href="{% url 'Timesheet:logout' %}">Logout</a>
+          {% else %}
+            <a class="btn btn-secondary btn-sm" href="{% url 'Timesheet:login' %}">Login</a>
+          {% endif %}
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      {% if messages %}
+        <div class="mb-3">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+      {% block content %}{% endblock %}
+    </div>
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>

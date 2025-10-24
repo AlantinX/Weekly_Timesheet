@@ -1,0 +1,32 @@
+{% extends 'Timesheet/base.html' %}
+{% block title %}Crew Members{% endblock %}
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>Your Crew</h3>
+    <a class="btn btn-primary" href="{% url 'Timesheet:add_employee' %}">Add Crew Member</a>
+  </div>
+  <table class="table table-sm table-striped">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for e in employees %}
+        <tr>
+          <td>{{ e.name }}</td>
+          <td>
+              <form method="post" class="d-inline" action="{% url 'Timesheet:delete_employee' e.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="employee_id" value="{{ e.id }}">
+                <button type="submit" name="delete_member" class="btn btn-danger" onclick="return confirm('Remove this crew member from your list? This will not delete historical data.')"> Delete </button>
+              </form>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="2">No crew members yet</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

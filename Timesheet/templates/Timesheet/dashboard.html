@@ -1,0 +1,48 @@
+{% extends 'Timesheet/base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>Timesheets</h3>
+    <div>
+      {% if is_user_group %}
+        <a class="btn btn-success me-2" href="{% url 'Timesheet:new_timesheet' %}">New Timesheet</a>
+        <a class="btn btn-secondary" href="{% url 'Timesheet:add_employee' %}">Add Crew Member</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Owner</th>
+        <th>Week Start</th>
+        <th>Created</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for ts in timesheets %}
+        <tr>
+          <td>{{ ts.owner.username }}</td>
+          <td>{{ ts.week_start }}</td>
+          <td>{% load tz %}{% localtime on %}{{ ts.created_at }}{% endlocaltime %}</td>
+          <td>
+            <a class="btn btn-sm btn-info me-1" href="{% url 'Timesheet:view_timesheet' ts.id %}">View</a>
+            {% if ts.editable or is_admin_or_accounting %}
+              <a class="btn btn-sm btn-warning" href="{% url 'Timesheet:edit_timesheet' ts.id %}">Edit</a>
+            {% endif %}
+            {% if is_admin %}
+              <form method="post" class="d-inline">
+                {% csrf_token %}
+                <input type="hidden" name="timesheet_id" value="{{ ts.id }}">
+                <button name="delete_timesheet" class="btn btn-sm btn-danger" onclick="return confirm('Delete this timesheet? This cannot be undone.')">Delete</button>
+              </form>
+            {% endif %}
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="5">No timesheets yet</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

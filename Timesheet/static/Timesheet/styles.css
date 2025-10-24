@@ -1,0 +1,33 @@
+/* Timesheet specific styles */
+
+.timesheet-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+/* keep employee column at a fixed pixel width */
+.timesheet-table th:nth-child(1),
+.timesheet-table td:nth-child(1) {
+  width: 260px;
+}
+
+/* Make each day column equal width (Mon..Sun are columns 2..8) */
+.timesheet-table th:nth-child(2), .timesheet-table td:nth-child(2),
+.timesheet-table th:nth-child(3), .timesheet-table td:nth-child(3),
+.timesheet-table th:nth-child(4), .timesheet-table td:nth-child(4),
+.timesheet-table th:nth-child(5), .timesheet-table td:nth-child(5),
+.timesheet-table th:nth-child(6), .timesheet-table td:nth-child(6),
+.timesheet-table th:nth-child(7), .timesheet-table td:nth-child(7),
+.timesheet-table th:nth-child(8), .timesheet-table td:nth-child(8) {
+  width: 6.5%;
+  max-width: 6.5%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Allow jobsite columns to take the remaining space */
+.timesheet-table th:nth-child(9), .timesheet-table td:nth-child(9),
+.timesheet-table th:nth-child(10), .timesheet-table td:nth-child(10) {
+  width: auto;
+}

@@ -1,0 +1,10 @@
+{% extends 'Timesheet/base.html' %}
+{% block title %}Confirm Delete{% endblock %}
+{% block content %}
+  <h4>Delete {{ employee.name }}?</h4>
+  <form method="post">
+    {% csrf_token %}
+    <button class="btn btn-danger">Delete</button>
+    <a class="btn btn-secondary" href="{% url 'Timesheet:crew_list' %}">Cancel</a>
+  </form>
+{% endblock %}

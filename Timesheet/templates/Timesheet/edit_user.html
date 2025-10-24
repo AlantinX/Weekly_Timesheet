@@ -1,0 +1,36 @@
+{% extends 'Timesheet/base.html' %}
+{% block title %}Edit User{% endblock %}
+{% block content %}
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Edit User: {{ user_obj.username }}</h5>
+          <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="d-flex gap-2">
+              <button class="btn btn-primary">Save Changes</button>
+              {% if can_delete %}
+                <button type="submit" name="delete_user" class="btn btn-danger">Delete User</button>
+              {% endif %}
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Reset Password</h5>
+          <form method="post">
+            {% csrf_token %}
+            {{ password_form.as_p }}
+            <button type="submit" name="reset_password" class="btn btn-warning">Reset Password</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

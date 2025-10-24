@@ -1,0 +1,133 @@
+{% extends 'Timesheet/base.html' %}
+{% block title %}New Timesheet{% endblock %}
+{% block content %}
+  <h4>Weekly Timesheet</h4>
+  <div class="mb-3 row">
+    <div class="col-md-2"><label class="form-label">Week of:</label></div>
+    <div class="col-md-4"><input id="week_start_input" class="form-control" type="date" name="week_start" value="{{ week_start_default }}" form="tsform" /></div>
+  </div>
+
+  <form id="tsform" method="post">
+    {% csrf_token %}
+  <input type="hidden" name="week_start" value="{{ week_start_default }}" />
+  <input type="hidden" id="rows_count" name="rows_count" value="10" />
+
+  <table class="table table-bordered table-sm timesheet-table">
+      <thead class="table-light">
+        <tr>
+          <th style="width:260px">Employee Name</th>
+          <th>Mon</th>
+          <th>Tues</th>
+          <th>Wed</th>
+          <th>Thur</th>
+          <th>Fri</th>
+          <th>Sat</th>
+          <th>Sun</th>
+          <th>Job Site Names</th>
+          <th>Job Site Numbers</th>
+        </tr>
+      </thead>
+      <tbody id="ts-table-body">
+        {% for i in rows_range %}
+        <tr>
+          <td style="width:260px">
+            <select name="employee_{{ i }}" class="form-select">
+              <option value=""></option>
+              <option value="self">{{ user.get_full_name|default:user.username }}</option>
+
+              {% if user_group_members %}
+              <optgroup label="Users">
+                {% for u in user_group_members %}
+                  <option value="{{ u.username }}">{{ u.get_full_name|default:u.username }}</option>
+                {% endfor %}
+              </optgroup>
+              {% endif %}
+
+              {% if active_employees %}
+              <optgroup label="Crew Members">
+                {% for e in active_employees %}
+                  <option value="{{ e.id }}">{{ e.name }}</option>
+                {% endfor %}
+              </optgroup>
+              {% endif %}
+            </select>
+          </td>
+          {% for d in day_range %}
+            <td><input name="hours_{{ i }}_{{ d }}" class="form-control form-control-sm" /></td>
+          {% endfor %}
+          <td><input name="jobsite_name_{{ i }}" class="form-control form-control-sm" /></td>
+          <td><input name="jobsite_num_{{ i }}" class="form-control form-control-sm" /></td>
+        </tr>
+        {% endfor %}
+        <!-- Hidden template row for cloning when adding new rows -->
+        <tr id="ts-template-row" class="d-none">
+          <td style="width:260px">
+            <select name="employee_TEMPLATE_INDEX" class="form-select">
+              <option value=""></option>
+              <option value="self">{{ user.get_full_name|default:user.username }}</option>
+              {% if user_group_members %}
+              <optgroup label="Users">
+                {% for u in user_group_members %}
+                  <option value="{{ u.username }}">{{ u.get_full_name|default:u.username }}</option>
+                {% endfor %}
+              </optgroup>
+              {% endif %}
+              {% if active_employees %}
+              <optgroup label="Crew Members">
+                {% for e in active_employees %}
+                  <option value="{{ e.id }}">{{ e.name }}</option>
+                {% endfor %}
+              </optgroup>
+              {% endif %}
+            </select>
+          </td>
+          {% for d in day_range %}
+            <td><input name="hours_TEMPLATE_INDEX_{{ d }}" class="form-control form-control-sm" /></td>
+          {% endfor %}
+          <td><input name="jobsite_name_TEMPLATE_INDEX" class="form-control form-control-sm" /></td>
+          <td><input name="jobsite_num_TEMPLATE_INDEX" class="form-control form-control-sm" /></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="d-flex gap-2">
+      <button class="btn btn-primary">Save Timesheet</button>
+      <button id="addRowBtn" type="button" class="btn btn-outline-secondary">+ Add Row</button>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Additional Notes</label>
+      <textarea name="additional_notes" class="form-control" rows="4">{{ form.initial.additional_notes|default:'' }}</textarea>
+    </div>
+  </form>
+
+  <script>
+    // ensure hidden input matches visible date before submit
+    const form = document.getElementById('tsform');
+    form.addEventListener('submit', () => {
+      const visible = document.getElementById('week_start_input');
+      const hidden = document.querySelector('input[name="week_start"][type="hidden"]');
+      if (visible && hidden) { hidden.value = visible.value; }
+      // ensure rows_count is updated
+      const rc = document.getElementById('rows_count');
+      if (rc) {
+        const trs = document.querySelectorAll('#ts-table-body tr').length;
+        rc.value = trs;
+      }
+    });
+
+    // Add row button behavior
+    const addBtn = document.getElementById('addRowBtn');
+    addBtn.addEventListener('click', () => {
+      const tbody = document.querySelector('#ts-table-body');
+      const index = tbody.querySelectorAll('tr').length;
+      const template = document.getElementById('ts-template-row');
+      const clone = template.cloneNode(true);
+      clone.id = '';
+      clone.classList.remove('d-none');
+      // Replace placeholder names with the new index
+      clone.innerHTML = clone.innerHTML.replace(/TEMPLATE_INDEX/g, index);
+      tbody.appendChild(clone);
+      document.getElementById('rows_count').value = tbody.querySelectorAll('tr').length;
+    });
+  </script>
+
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends 'Timesheet/base.html' %}
+{% block title %}Add Crew Member{% endblock %}
+{% block content %}
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title">Add Crew Member</h5>
+      
+
+      
+      <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn btn-primary">Add</button>
+      </form>
+
+      {% if available %}
+      <hr />
+      <h6>Available Crew Members</h6>
+      <table class="table table-sm">
+        <thead><tr><th>Name</th><th></th></tr></thead>
+        <tbody>
+          {% for a in available %}
+            <tr>
+              <td>{{ a.name }}</td>
+              <td>
+                <form method="post" style="display:inline">
+                  {% csrf_token %}
+                  <input type="hidden" name="add_existing" value="1" />
+                  <input type="hidden" name="employee_id" value="{{ a.id }}" />
+                  <button class="btn btn-sm btn-outline-primary">Add</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+        <p class="text-muted mt-3">No available crew members to add.</p>
+      {% endif %}
+
+      {# Modal confirmation for existing employee #}
+      {% if confirm_existing %}
+      <div class="modal fade" id="confirmExistingModal" tabindex="-1" aria-labelledby="confirmExistingLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="confirmExistingLabel">Crew Member Exists</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              This crew member "<strong>{{ confirm_existing.name }}</strong>" already exists. Would you like to add them to your crew?
+            </div>
+            <div class="modal-footer">
+              <form method="post" style="display:inline">
+                {% csrf_token %}
+                <input type="hidden" name="confirm_join" value="1" />
+                <input type="hidden" name="name" value="{{ confirm_existing.name }}" />
+                <button type="submit" class="btn btn-primary">Yes</button>
+              </form>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+{% if confirm_existing %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var modalEl = document.getElementById('confirmExistingModal');
+    if (modalEl) {
+      var modal = new bootstrap.Modal(modalEl);
+      modal.show();
+    }
+  });
+</script>
+{% endif %}
+{% endblock %}

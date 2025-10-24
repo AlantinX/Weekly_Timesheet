@@ -1,0 +1,112 @@
+{% extends 'Timesheet/base.html' %}
+{% block title %}User Management{% endblock %}
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>User Management</h3>
+    <a class="btn btn-primary" href="{% url 'Timesheet:create_user' %}">Create User</a>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <h5>Active Users</h5>
+      <table class="table table-sm table-striped">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Access</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in users %}
+            <tr>
+              <td>{{ u.username }}</td>
+              <td>{% for g in u.groups.all %}{{ g.name }} {% empty %}{% endfor %}</td>
+              <td>
+                <a class="btn btn-sm btn-outline-primary" href="{% url 'Timesheet:edit_user' u.id %}">Edit</a>
+                {% if u.is_locked %}
+                <form method="post" class="d-inline" style="display:inline" action="{% url 'Timesheet:unlock_user' u.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-warning">Unlock</button>
+                </form>
+                {% endif %}
+                <form method="post" class="d-inline" style="display:inline" action="{% url 'Timesheet:edit_user' u.id %}">
+                  {% csrf_token %}
+                  <button type="submit" name="delete_user" class="btn btn-sm btn-danger" onclick="return confirm('Deactivate this user?')">Deactivate</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <h5 class="mt-4">Active Crew Members</h5>
+      <table class="table table-sm table-striped">
+        <thead>
+          <tr><th>Name</th><th>Manager</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+            {% for e in employees %}
+            <tr>
+              <td>{{ e.name }}</td>
+                <td>{% for m in e.managers.all %}{{ m.username }}{% if not forloop.last %}, {% endif %}{% empty %}--{% endfor %}</td>
+              <td>
+                <form method="post" class="d-inline" action="{% url 'Timesheet:delete_employee' e.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Remove this crew member?')">Remove</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="col-md-6">
+      <h5>Inactive Users</h5>
+      <table class="table table-sm table-striped">
+        <thead>
+          <tr><th>Username</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          {% for u in inactive_users %}
+            <tr>
+              <td>{{ u.username }}</td>
+              <td>
+                <form method="post" action="{% url 'Timesheet:reactivate_user' u.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-success">Reactivate</button>
+                </form>
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="3">No inactive users</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <h5 class="mt-4">Inactive Crew Members</h5>
+      <table class="table table-sm table-striped">
+        <thead>
+          <tr><th>Name</th><th>Owner</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+            {% for e in inactive_employees %}
+            <tr>
+              <td>{{ e.name }}</td>
+                <td>{% for m in e.managers.all %}{{ m.username }}{% if not forloop.last %}, {% endif %}{% empty %}--{% endfor %}</td>
+              <td>
+                <form method="post" action="{% url 'Timesheet:reactivate_employee' e.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-success">Reactivate</button>
+                </form>
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="3">No inactive crew members</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}
