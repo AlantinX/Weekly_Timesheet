@@ -1,4 +1,4 @@
-# Intranet Timesheet (Alliance)
+# Intranet Timesheet
 
 This is a small Django project for managing weekly timesheets.
 
@@ -34,3 +34,4 @@ python manage.py runserver
 Notes:
 - Account lockouts are handled by `django-axes` (configured in `Intranet_Project/settings.py`).
 - Timesheets store rows in `Timesheet` and `TimesheetRow` models.
+
